@@ -1,8 +1,9 @@
 package fusion
 
-import fusion.Dependencies.ExtServices
+import fusion.Dependencies.StockDAO
 import org.http4s.server.blaze.BlazeServerBuilder
 import org.http4s.syntax.kleisli._
+import zio.clock.Clock
 import zio.interop.catz._
 import zio.{ExitCode, RIO, URIO, ZIO}
 
@@ -24,8 +25,15 @@ object ServerApp extends CatsApp {
           .drain
       }
 
+  /**
+   * right now
+   * - dependency StockDAO from PGConnection is hidden in constructor: TODO: FIX IT
+   * - connection string is hardcoded: TODO: FIXIT
+   */
+  val deps = StockDAO.live ++ Clock.live
+
   override def run(args: List[String]): URIO[zio.ZEnv, ExitCode] =
     program
-      .provideLayer(Dependencies.extServicesLive)
+      .provideLayer(deps)
       .exitCode
 }

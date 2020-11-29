@@ -1,7 +1,8 @@
 import doobie.util.transactor.Transactor.Aux
-import fusion.Dependencies.ExtServices
+import fusion.Dependencies.StockDAO
 import org.http4s.Response
-import zio.{RIO, Task, ZIO}
+import zio.clock.Clock
+import zio.{Has, RIO, Task, ZIO}
 
 package object fusion {
 
@@ -9,5 +10,8 @@ package object fusion {
   type SIO[E, A]    = ZIO[ExtServices, E, A]
   type STask[A]     = RIO[ExtServices, A]
   type SResponse    = STask[Response[STask]]
+
+  type StockDAO     = Has[StockDAO.Service]
+  type ExtServices  = StockDAO with Clock
 
 }

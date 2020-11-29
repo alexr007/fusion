@@ -1,6 +1,7 @@
 package fusion
 
 import fusion.Dependencies.StockDAO
+import fusion.domain.{Stock, StockDBAccessError, StockError, StockNotFound}
 import org.http4s._
 import org.http4s.syntax.literals._
 import org.http4s.syntax.kleisli._

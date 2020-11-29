@@ -1,4 +1,4 @@
-package fusion
+package fusion.domain
 
 case class Stock(id:Int, value: Int)
 

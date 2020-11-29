@@ -1,14 +1,12 @@
 package fusion
 
 import doobie.util.transactor.Transactor
+import fusion.dao.StockDAOLive
+import fusion.domain.{Stock, StockError}
 import zio._
-import zio.clock.Clock
 import zio.interop.catz._
 
 object Dependencies {
-
-  type ExtServices = StockDAO with Clock
-  type StockDAO = Has[StockDAO.Service]
 
   object StockDAO {
 
@@ -27,7 +25,5 @@ object Dependencies {
         new StockDAOLive(xa)
       }
   }
-
-  val extServicesLive: ULayer[ExtServices] = StockDAO.live ++ Clock.live
 
 }
