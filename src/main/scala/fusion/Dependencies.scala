@@ -1,8 +1,6 @@
-package io.github.loicdescotte.purewebappsample
+package fusion
 
 import doobie.util.transactor.Transactor
-import io.github.loicdescotte.purewebappsample.dao.StockDAOLive
-import io.github.loicdescotte.purewebappsample.model._
 import zio._
 import zio.clock.Clock
 import zio.interop.catz._
@@ -15,9 +13,8 @@ object Dependencies {
   object StockDAO {
 
     trait Service {
-      def currentStock(stockId: Int): IO[StockError, Stock]
-
-      def updateStock(stockId: Int, updateValue: Int): IO[StockError, Stock]
+      def current(stockId: Int): IO[StockError, Stock]
+      def update(stockId: Int, updateValue: Int): IO[StockError, Stock]
     }
 
     val live: ULayer[StockDAO] =

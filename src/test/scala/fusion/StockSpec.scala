@@ -1,7 +1,6 @@
-package io.github.loicdescotte.purewebappsample
+package fusion
 
-import io.github.loicdescotte.purewebappsample.Dependencies.StockDAO
-import io.github.loicdescotte.purewebappsample.model.{Stock, StockDBAccessError, StockError, StockNotFound}
+import fusion.Dependencies.StockDAO
 import org.http4s._
 import org.http4s.syntax.literals._
 import org.http4s.syntax.kleisli._
@@ -9,15 +8,15 @@ import zio.clock.Clock
 import zio.interop.catz._
 import zio.test.Assertion._
 import zio.test._
-import zio.{IO, ZLayer}
+import zio.{IO, Layer, ZLayer}
 
 
 object StockSpec extends DefaultRunnableSpec {
 
-  val stockDAOTest: ZLayer.NoDeps[Nothing, StockDAO] = ZLayer.succeed {
+  val stockDAOTest: Layer[Nothing, StockDAO] = ZLayer.succeed {
     new StockDAO.Service {
       //you could also use a mocking framework here
-      override def currentStock(stockId: Int): IO[StockError, Stock] = {
+      override def current(stockId: Int): IO[StockError, Stock] = {
         stockId match {
           case 1 => IO.succeed(Stock(1, 10))
           case 2 => IO.succeed(Stock(2, 15))
@@ -27,8 +26,8 @@ object StockSpec extends DefaultRunnableSpec {
         }
       }
 
-      override def updateStock(stockId: Int, updateValue: Int): IO[StockError, Stock] = {
-        currentStock(stockId).map(stock => stock.copy(value = stock.value + updateValue))
+      override def update(stockId: Int, updateValue: Int): IO[StockError, Stock] = {
+        current(stockId).map(stock => stock.copy(value = stock.value + updateValue))
       }
     }
 
@@ -39,7 +38,7 @@ object StockSpec extends DefaultRunnableSpec {
   val scenarios = List(
     testM("return 200 and current stock") {
       val request = Request[STask](Method.GET, uri"""/stock/1""")
-      val response: SResponse = HTTPService.routes.orNotFound.run(request)
+      val response = HTTPService.routes.orNotFound.run(request)
       response.flatMap(r => assertM(r.as[String])(equalTo("""{"id":1,"value":10}""")))
     },
 

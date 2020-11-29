@@ -7,3 +7,14 @@ How to run the sample :
  * sbt run
  * open http://localhost:8080/stock/1
 
+- taken [here](https://github.com/loicdescotte/pureWebappSample)
+- in process of constant improvement according to understanding process
+
+#### updates
+- scala 2.13.3
+- sbt 1.4.3
+- zio 1.0.3
+- catz interop 2.2.0.1
+- doobie 0.9.4
+- https 0.21.13
+- zio-logging-slf4j 0.5.3
