@@ -25,7 +25,7 @@ object Configuration {
   /** stub implementation, has hardcoded configuration */
   val stub: ULayer[Configuration] = ZLayer.succeed(new Service {
     private val c = AppConfig(
-      AppDetails("test app"),
+      AppDetails("test app (stub)"),
       DbConnDetails(
         "org.h2.Driver",
         "jdbc:h2:file:./localdb;INIT=RUNSCRIPT FROM 'src/main/resources/sql/create.sql'",
