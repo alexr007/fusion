@@ -2,7 +2,7 @@ package fusion.services
 
 import doobie.util.transactor.Transactor
 import fusion.{Configuration, DbConnection, IOTransactor}
-import zio.{Task, UIO, URLayer, ZLayer}
+import zio.{Task, UIO, URIO, URLayer, ZIO, ZLayer}
 import zio.interop.catz._
 
 object DbConnection {
@@ -12,7 +12,7 @@ object DbConnection {
   }
 
   /** this is PUBLIC POINT TO USE in the WHOLE APP */
-//  def xa: URIO[Configuration, IOTransactor] = ZIO.accessM((x: Configuration) => x.get.conf)
+  def xa: URIO[DbConnection, IOTransactor] = ZIO.accessM(_.get.xa)
 
   val liveConf: URLayer[Configuration, IOTransactor] = ZLayer.fromFunctionM {
     _.get.conf

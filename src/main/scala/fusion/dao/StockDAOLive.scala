@@ -2,14 +2,15 @@ package fusion.dao
 
 
 import doobie.implicits._
+import doobie.util.transactor.Transactor.Aux
 import fusion.IOTransactor
 import fusion.domain.{Stock, StockDBAccessError, StockError, StockNotFound}
 import fusion.services.StockDAO
 import org.http4s._
-import zio.IO
+import zio.{IO, Task}
 import zio.interop.catz._
 
-class StockDAOLive(xa: IOTransactor) extends StockDAO.Service {
+class StockDAOLive(xa: Aux[Task, Unit]) extends StockDAO.Service {
 
   val selectQ = (stockId: Int) =>
     sql"""SELECT * FROM stock where id=$stockId""".query[Stock]
