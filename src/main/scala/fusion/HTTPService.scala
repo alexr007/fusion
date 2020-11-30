@@ -3,8 +3,8 @@ package fusion
 import io.circe._
 import io.circe.syntax._
 import io.circe.generic.auto._
-import fusion.Dependencies.StockDAO
 import fusion.domain._
+import fusion.services.StockDAO
 import org.http4s.dsl.Http4sDsl
 import org.http4s.{HttpRoutes, Response}
 import org.http4s.circe._

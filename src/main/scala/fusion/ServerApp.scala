@@ -1,7 +1,6 @@
 package fusion
 
-import fusion.Dependencies.StockDAO
-import fusion.services.Configuration
+import fusion.services.{Configuration, StockDAO}
 import org.http4s.server.blaze.BlazeServerBuilder
 import org.http4s.syntax.kleisli._
 import zio.clock.Clock

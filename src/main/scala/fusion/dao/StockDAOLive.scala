@@ -2,9 +2,9 @@ package fusion.dao
 
 
 import doobie.implicits._
-import fusion.Dependencies.StockDAO
 import fusion.IOTransactor
 import fusion.domain.{Stock, StockDBAccessError, StockError, StockNotFound}
+import fusion.services.StockDAO
 import org.http4s._
 import zio.IO
 import zio.interop.catz._
