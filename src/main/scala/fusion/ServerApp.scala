@@ -16,6 +16,8 @@ object ServerApp extends CatsApp {
    * and manage threading
    *
    * http://localhost:8080
+   * http://localhost:8080/stock/457
+   * http://localhost:8080/abracadabra
    */
   val program: ZIO[AllExtServices, Throwable, Unit] =
     ZIO.runtime
@@ -33,14 +35,25 @@ object ServerApp extends CatsApp {
     _ <- zio.console.putStrLn(c.toString)
   } yield ()
 
+  /** combine TWO apps */
   val appReqDeps: ZIO[AllExtServices with Console with Configuration, Throwable, Unit] =
     prefix *> program
 
+  /** combine all deps */
   val deps: ULayer[Configuration with Console with Clock] =
     Configuration.stub ++ (Console.live ++ Clock.live)
 
+  /** provide all deps */
   val app: Task[Unit] = appReqDeps
     .provideLayer(deps)
+
+  /**
+   * or provide deps to each part separately
+   */
+  val programNoDeps: ZIO[Any, Throwable, Unit] = program.provideLayer(Clock.live)
+  val prefixNoDeps: ZIO[Any, Nothing, Unit] = prefix.provideLayer(Configuration.stub ++ Console.live)
+  /** combine them */
+  val wholeApp: ZIO[Any, Throwable, Unit] = prefixNoDeps *> programNoDeps
 
   override def run(args: List[String]): URIO[zio.ZEnv, ExitCode] = app.exitCode
 }
