@@ -15,18 +15,17 @@ package object fusion {
    * because Http4s and Doobie require it
    * to wrap their results
    */
-  type STask[A]       = RIO[AllExtServices, A]
-  type DTask[A]       = UIO[A]
-  /** temporary, at investigation stage */
-  type AllExtServices = Clock
-
+  type STask[A]      = RIO[Clock, A]
+  /** doobie alias */
+  type IOTransactor  = Aux[STask, Unit]
+  /** ZIO aliases */
   type Configuration = Has[Configuration.Service]
   type DbConnection  = Has[DbConnection.Service]
   type StockDAO      = Has[StockDAO.Service]
-  /** doobie alias */
-  type IOTransactor  = Aux[STask, Unit]
 
 
+  /** temporary, at investigation stage */
+  //  type AllExtServices = Clock
 //  type ExtServices     = StockDAO with Clock
 //  type SIO[E, A]       = ZIO[ExtServices, E, A]
 //  type SResponse[A[_]] = A[Response[A]]

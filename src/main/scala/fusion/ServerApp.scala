@@ -10,6 +10,11 @@ import zio._
 
 object ServerApp extends CatsApp {
 
+  val program1: ZIO[Console with Configuration, Nothing, Unit] = for {
+    c <- Configuration.conf
+    _ <- zio.console.putStrLn(c.toString)
+  } yield ()
+
   /**
    * Runtime will execute IO unsafe calls
    * (i.e. all the side effects)
@@ -19,9 +24,9 @@ object ServerApp extends CatsApp {
    * http://localhost:8080/stock/457
    * http://localhost:8080/abracadabra
    */
-  val program: ZIO[AllExtServices, Throwable, Unit] =
+  val program2: ZIO[Clock, Throwable, Unit] =
     ZIO.runtime
-      .flatMap { implicit runtime: zio.Runtime[AllExtServices] =>
+      .flatMap { implicit runtime: zio.Runtime[Clock] =>
         BlazeServerBuilder[STask]
           .bindHttp(8080, "0.0.0.0")
           .withHttpApp(HTTP.endpoints[STask].orNotFound)
@@ -30,14 +35,9 @@ object ServerApp extends CatsApp {
           .drain
       }
 
-  val prefix: ZIO[Console with Configuration, Nothing, Unit] = for {
-    c <- Configuration.conf
-    _ <- zio.console.putStrLn(c.toString)
-  } yield ()
-
   /** combine TWO apps */
-  val appReqDeps: ZIO[AllExtServices with Console with Configuration, Throwable, Unit] =
-    prefix *> program
+  val appReqDeps: ZIO[Clock with Console with Configuration, Throwable, Unit] =
+    program1 *> program2
 
   /** combine all deps */
   val deps: ULayer[Configuration with Console with Clock] =
@@ -50,8 +50,8 @@ object ServerApp extends CatsApp {
   /**
    * or provide deps to each part separately
    */
-  val programNoDeps: ZIO[Any, Throwable, Unit] = program.provideLayer(Clock.live)
-  val prefixNoDeps: ZIO[Any, Nothing, Unit] = prefix.provideLayer(Configuration.stub ++ Console.live)
+  val programNoDeps: ZIO[Any, Throwable, Unit] = program2.provideLayer(Clock.live)
+  val prefixNoDeps: ZIO[Any, Nothing, Unit] = program1.provideLayer(Configuration.stub ++ Console.live)
   /** combine them */
   val wholeApp: ZIO[Any, Throwable, Unit] = prefixNoDeps *> programNoDeps
 

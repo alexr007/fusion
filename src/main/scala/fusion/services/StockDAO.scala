@@ -1,24 +1,22 @@
 package fusion.services
 
-import doobie.util.transactor.Transactor
-import fusion.{AllExtServices, Configuration, DbConnection, IOTransactor, STask, StockDAO}
-import zio.ZIO
-import fusion.domain.{Stock, StockDBAccessError, StockError, StockNotFound}
-import zio.{IO, Task, ULayer, URLayer, ZLayer}
-import zio.interop.catz._
 import doobie.implicits._
-import fusion.dao.StockDAOLive
+import fusion.domain.{Stock, StockDBAccessError, StockError, StockNotFound}
+import fusion.{DbConnection, StockDAO}
+import zio.clock.Clock
+import zio.interop.catz._
+import zio.{IO, URLayer, ZIO, ZLayer}
 
 object StockDAO {
 
   trait Service {
-    def current(stockId: Int): IO[StockError, Stock]
-    def update(stockId: Int, updateValue: Int): IO[StockError, Stock]
+    def current(stockId: Int): ZIO[Clock, StockError, Stock]
+    def update(stockId: Int, updateValue: Int): ZIO[Clock, StockError, Stock]
   }
 
-  def current(stockId: Int): ZIO[StockDAO, StockError, Stock] =
+  def current(stockId: Int): ZIO[StockDAO with Clock, StockError, Stock] =
     ZIO.accessM(_.get.current(stockId))
-  def update(stockId: Int, updateValue: Int): ZIO[StockDAO, StockError, Stock] =
+  def update(stockId: Int, updateValue: Int): ZIO[StockDAO with Clock, StockError, Stock] =
     ZIO.accessM(_.get.update(stockId, updateValue))
 
   val live: URLayer[DbConnection, StockDAO] = ZLayer.fromFunction { conn =>
@@ -29,9 +27,9 @@ object StockDAO {
       sql""" UPDATE stock SET value = value + $value where id=$stockId""".update
 
     new Service {
-      override def current(stockId: Int): IO[StockError, Stock] = {
-        conn.get.xa.flatMap { xa =>
-          val r: ZIO[AllExtServices, StockError, Stock] =
+      override def current(stockId: Int): ZIO[Clock, StockError, Stock] =
+        conn.get.xa
+          .flatMap { xa =>
             selectQ(stockId).option
               .transact(xa)
               .mapError(ex => StockDBAccessError(ex))
@@ -39,30 +37,20 @@ object StockDAO {
                 case Some(stock) => IO.succeed(stock)
                 case None        => IO.fail(StockNotFound)
               }
-              r
-//          ???
-        }
-      }
+          }
 
-    override def update(stockId: Int, updateValue: Int): IO[StockError, Stock] = ???
+      override def update(stockId: Int, updateValue: Int): ZIO[Clock, StockError, Stock] =
+        conn.get.xa
+          .flatMap { xa =>
+            val dbQ = for {
+              _       <- updateQ(stockId, updateValue).run
+              updated <- selectQ(stockId).unique
+            } yield updated
+            dbQ
+              .transact(xa)
+              .mapError(ex => StockDBAccessError(ex))
+          }
     }
   }
 
-
-
-//  val liveHard: ULayer[StockDAO] =
-//    ZLayer.succeed {
-//      val xa = Transactor.fromDriverManager[Task](
-//        "org.h2.Driver",
-//        "jdbc:h2:file:./localdb;INIT=RUNSCRIPT FROM 'src/main/resources/sql/create.sql'"
-//        , "sa", ""
-//      )
-//      new StockDAOLive(xa)
-//    }
-
-//  val liveConf: URLayer[DbConnection, StockDAO] = ZLayer.fromFunctionM {
-//    _.get
-//      .xa
-//      .map(xa => new StockDAOLive(xa))
-//  }
 }

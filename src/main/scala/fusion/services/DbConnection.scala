@@ -1,7 +1,7 @@
 package fusion.services
 
 import doobie.util.transactor.Transactor
-import fusion.{Configuration, DbConnection, IOTransactor, STask}
+import fusion.{Configuration, DbConnection, IOTransactor}
 import zio._
 import zio.interop.catz._
 
@@ -30,7 +30,7 @@ object DbConnection {
       override def xa: UIO[IOTransactor] =
         configuration.get.conf
           .map(_.db)
-          .map(db => Transactor.fromDriverManager[STask](db.driver, db.url, db.user, db.password))
+          .map(db => Transactor.fromDriverManager(db.driver, db.url, db.user, db.password))
     }
   }
 
