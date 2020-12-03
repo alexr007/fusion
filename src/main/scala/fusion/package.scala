@@ -1,12 +1,9 @@
 import doobie.util.transactor.Transactor.Aux
 import fusion.services.{DbConnection, StockDAO}
-import zio.{IO, UIO}
 
-//import scala.language.higherKinds
 import fusion.services.Configuration
-import org.http4s.Response
 import zio.clock.Clock
-import zio.{Has, RIO, Task, ZIO}
+import zio.{Has, RIO}
 
 package object fusion {
 
@@ -22,12 +19,5 @@ package object fusion {
   type Configuration = Has[Configuration.Service]
   type DbConnection  = Has[DbConnection.Service]
   type StockDAO      = Has[StockDAO.Service]
-
-
-  /** temporary, at investigation stage */
-  //  type AllExtServices = Clock
-//  type ExtServices     = StockDAO with Clock
-//  type SIO[E, A]       = ZIO[ExtServices, E, A]
-//  type SResponse[A[_]] = A[Response[A]]
 
 }
