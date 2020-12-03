@@ -1,11 +1,8 @@
 package fusion.services
 
 import doobie.util.transactor.Transactor
-import doobie.util.transactor.Transactor.Aux
 import fusion.{Configuration, DbConnection, IOTransactor, STask}
-import zio.Has
-//import fusion.{Configuration, DbConnection, IOTransactor}
-import zio.{Task, UIO, URIO, URLayer, ZIO, ZLayer}
+import zio._
 import zio.interop.catz._
 
 object DbConnection {

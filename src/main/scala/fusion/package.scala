@@ -1,5 +1,6 @@
 import doobie.util.transactor.Transactor.Aux
-import fusion.services.DbConnection
+import fusion.services.{DbConnection, StockDAO}
+import zio.{IO, UIO}
 
 //import scala.language.higherKinds
 import fusion.services.Configuration
@@ -15,11 +16,13 @@ package object fusion {
    * to wrap their results
    */
   type STask[A]       = RIO[AllExtServices, A]
+  type DTask[A]       = UIO[A]
   /** temporary, at investigation stage */
   type AllExtServices = Clock
 
   type Configuration = Has[Configuration.Service]
   type DbConnection  = Has[DbConnection.Service]
+  type StockDAO      = Has[StockDAO.Service]
   /** doobie alias */
   type IOTransactor  = Aux[STask, Unit]
 
@@ -27,6 +30,5 @@ package object fusion {
 //  type ExtServices     = StockDAO with Clock
 //  type SIO[E, A]       = ZIO[ExtServices, E, A]
 //  type SResponse[A[_]] = A[Response[A]]
-//  type StockDAO        = Has[StockDAO.Service]
 
 }
